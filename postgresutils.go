@@ -7,9 +7,12 @@ import (
 
 	"github.com/andsha/securestorage"
 	"github.com/andsha/vconfig"
+	_ "github.com/lib/pq"
 )
 
 //var pgProcesses []PostgresProcess
+
+//TODO - remove unnecessary members
 
 type PostgresProcess struct {
 	pgHost   string
@@ -84,21 +87,25 @@ func (process *PostgresProcess) Run(sql string) ([][]interface{}, error) {
 		return nil, err
 	}
 
+    defer rows.Close()
+
 	cols, err := rows.Columns()
 	if err != nil {
 		return nil, err
 	}
 
-	tmpres := make([]interface{}, len(cols))
-	dest := make([]interface{}, len(cols))
-	var result [][]interface{}
-
-	for i, _ := range tmpres {
-		dest[i] = &tmpres[i]
-	}
+    var result [][]interface{}
 
 	for rows.Next() {
-		rows.Scan(dest...)
+		tmpres := make([]interface{}, len(cols))
+	    dest := make([]interface{}, len(cols))
+
+
+    	for i, _ := range tmpres {
+    		dest[i] = &tmpres[i]
+    	}
+
+        rows.Scan(dest...)
 		result = append(result, tmpres)
 	}
 
