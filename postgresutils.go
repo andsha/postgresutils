@@ -23,10 +23,12 @@ type PostgresProcess struct {
 }
 
 func NewDB(host, port, dbname, user, password, sslmode string, pwdSection *vconfig.Section) (*PostgresProcess, error) {
-	keyStorage, err := securestorage.NewSecureStorage("", "", pwdSection)
-	if err != nil {
-		return nil, err
-	}
+	var keyStorage *securestorage.SecureStorage
+    if pwdSection != nil {
+        var err error
+        keyStorage, err = securestorage.NewSecureStorage("", "", pwdSection)
+    	if err != nil {return nil, err}
+    }
 
 	pgProcess := new(PostgresProcess)
 	connInfo := ""
@@ -47,10 +49,11 @@ func NewDB(host, port, dbname, user, password, sslmode string, pwdSection *vconf
 		connInfo += fmt.Sprintf(" user=%s ", user)
 	}
 	if password != "" {
-		if strings.HasSuffix(password, ".key") {
-			password, err = keyStorage.GetPasswordFromFile(password)
+		var err error
+        if strings.HasSuffix(password, ".key") {
+            password, err = keyStorage.GetPasswordFromFile(password)
 		} else {
-			password, err = keyStorage.GetPasswordFromString(password)
+            password, err = keyStorage.GetPasswordFromString(password)
 		}
 		if err != nil {
 			return nil, err
