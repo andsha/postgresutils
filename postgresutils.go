@@ -12,13 +12,8 @@ import (
 
 //var pgProcesses []PostgresProcess
 
-//TODO - remove unnecessary members
 
 type PostgresProcess struct {
-	pgHost   string
-	pgPort   string
-	pgDBName string
-	pgUser   string
 	pgDB     *sql.DB // safe for concurrent use by multiple goroutines
 }
 
@@ -33,19 +28,15 @@ func NewDB(host, port, dbname, user, password, sslmode string, pwdSection *vconf
 	pgProcess := new(PostgresProcess)
 	connInfo := ""
 	if host != "" {
-		pgProcess.pgHost = host
 		connInfo += fmt.Sprintf("host=%s ", host)
 	}
 	if port != "" {
-		pgProcess.pgPort = port
 		connInfo += fmt.Sprintf(" port=%s ", port)
 	}
 	if dbname != "" {
-		pgProcess.pgDBName = dbname
 		connInfo += fmt.Sprintf(" dbname=%s ", dbname)
 	}
 	if user != "" {
-		pgProcess.pgUser = user
 		connInfo += fmt.Sprintf(" user=%s ", user)
 	}
 	if password != "" {
